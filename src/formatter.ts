@@ -264,74 +264,76 @@ export class Formatter {
       chapterSummary.content.push(cols)
       chapterSummary.content.push('</table>\n')
 
-      chapterSummary.content.push('---\n')
+      if (!options.showOnlySummary) {
+        chapterSummary.content.push('---\n')
 
-      if (testSummary.stats.failed > 0) {
-        testReport.testStatus = 'failure'
-      } else if (testSummary.stats.passed > 0) {
-        testReport.testStatus = 'success'
-      }
-
-      chapterSummary.content.push('### Test Summary')
-
-      for (const [groupIdentifier, group] of Object.entries(
-        testSummary.groups
-      )) {
-        const anchorName = anchorIdentifier(groupIdentifier)
-        const anchorTag = anchorNameTag(`${groupIdentifier}_summary`)
-        chapterSummary.content.push(
-          `#### ${anchorTag}[${groupIdentifier}](${anchorName})\n`
-        )
-
-        const runDestination = chapter.runDestination
-        chapterSummary.content.push(
-          `- **Device:** ${runDestination.targetDeviceRecord.modelName}, ${runDestination.targetDeviceRecord.operatingSystemVersionWithBuildNumber}`
-        )
-        chapterSummary.content.push(
-          `- **SDK:** ${runDestination.targetSDKRecord.name}, ${runDestination.targetSDKRecord.operatingSystemVersion}`
-        )
-
-        chapterSummary.content.push('<table>')
-        chapterSummary.content.push('<tr>')
-        const header = [
-          `<th>Test`,
-          `<th>Total`,
-          `<th>${passedIcon}`,
-          `<th>${failedIcon}`,
-          `<th>${skippedIcon}`,
-          `<th>${expectedFailureIcon}`
-        ].join('')
-        chapterSummary.content.push(header)
-
-        for (const [identifier, stats] of Object.entries(group)) {
-          chapterSummary.content.push('<tr>')
-          const testClass = `${testClassIcon}&nbsp;${identifier}`
-          const testClassAnchor = anchorNameTag(
-            `${groupIdentifier}_${identifier}_summary`
-          )
-          const anchorName = anchorIdentifier(
-            `${groupIdentifier}_${identifier}`
-          )
-          const testClassLink = `<a href="${anchorName}">${testClass}</a>`
-
-          let failedCount: string
-          if (stats.failed > 0) {
-            failedCount = `<b>${stats.failed}</b>`
-          } else {
-            failedCount = `${stats.failed}`
-          }
-          const cols = [
-            `<td align="left" width="368px">${testClassAnchor}${testClassLink}`,
-            `<td align="right" width="80px">${stats.total}`,
-            `<td align="right" width="80px">${stats.passed}`,
-            `<td align="right" width="80px">${failedCount}`,
-            `<td align="right" width="80px">${stats.skipped}`,
-            `<td align="right" width="80px">${stats.expectedFailure}`
-          ].join('')
-          chapterSummary.content.push(cols)
+        if (testSummary.stats.failed > 0) {
+          testReport.testStatus = 'failure'
+        } else if (testSummary.stats.passed > 0) {
+          testReport.testStatus = 'success'
         }
-        chapterSummary.content.push('')
-        chapterSummary.content.push('</table>\n')
+
+        chapterSummary.content.push('### Test Summary')
+
+        for (const [groupIdentifier, group] of Object.entries(
+          testSummary.groups
+        )) {
+          const anchorName = anchorIdentifier(groupIdentifier)
+          const anchorTag = anchorNameTag(`${groupIdentifier}_summary`)
+          chapterSummary.content.push(
+            `#### ${anchorTag}[${groupIdentifier}](${anchorName})\n`
+          )
+
+          const runDestination = chapter.runDestination
+          chapterSummary.content.push(
+            `- **Device:** ${runDestination.targetDeviceRecord.modelName}, ${runDestination.targetDeviceRecord.operatingSystemVersionWithBuildNumber}`
+          )
+          chapterSummary.content.push(
+            `- **SDK:** ${runDestination.targetSDKRecord.name}, ${runDestination.targetSDKRecord.operatingSystemVersion}`
+          )
+
+          chapterSummary.content.push('<table>')
+          chapterSummary.content.push('<tr>')
+          const header = [
+            `<th>Test`,
+            `<th>Total`,
+            `<th>${passedIcon}`,
+            `<th>${failedIcon}`,
+            `<th>${skippedIcon}`,
+            `<th>${expectedFailureIcon}`
+          ].join('')
+          chapterSummary.content.push(header)
+
+          for (const [identifier, stats] of Object.entries(group)) {
+            chapterSummary.content.push('<tr>')
+            const testClass = `${testClassIcon}&nbsp;${identifier}`
+            const testClassAnchor = anchorNameTag(
+              `${groupIdentifier}_${identifier}_summary`
+            )
+            const anchorName = anchorIdentifier(
+              `${groupIdentifier}_${identifier}`
+            )
+            const testClassLink = `<a href="${anchorName}">${testClass}</a>`
+
+            let failedCount: string
+            if (stats.failed > 0) {
+              failedCount = `<b>${stats.failed}</b>`
+            } else {
+              failedCount = `${stats.failed}`
+            }
+            const cols = [
+              `<td align="left" width="368px">${testClassAnchor}${testClassLink}`,
+              `<td align="right" width="80px">${stats.total}`,
+              `<td align="right" width="80px">${stats.passed}`,
+              `<td align="right" width="80px">${failedCount}`,
+              `<td align="right" width="80px">${stats.skipped}`,
+              `<td align="right" width="80px">${stats.expectedFailure}`
+            ].join('')
+            chapterSummary.content.push(cols)
+          }
+          chapterSummary.content.push('')
+          chapterSummary.content.push('</table>\n')
+        }
       }
 
       chapterSummary.content.push('---\n')
@@ -450,11 +452,13 @@ export class Formatter {
           }
         }
       }
-      if (summaryFailures.length) {
-        chapterSummary.content.push(summaryFailures.join('\n'))
-        chapterSummary.content.push('')
-      } else {
-        chapterSummary.content.push('All tests passed :tada:\n')
+      if (!options.showOnlySummary) {
+        if (summaryFailures.length) {
+          chapterSummary.content.push(summaryFailures.join('\n'))
+          chapterSummary.content.push('')
+        } else {
+          chapterSummary.content.push('All tests passed :tada:\n')
+        }
       }
 
       if (testReport.codeCoverage && options.showCodeCoverage) {
@@ -984,9 +988,11 @@ interface FailureSummary {
 export class FormatterOptions {
   showPassedTests: boolean
   showCodeCoverage: boolean
+  showOnlySummary: boolean
 
-  constructor(showPassedTests = true, showCodeCoverage = true) {
+  constructor(showPassedTests = true, showCodeCoverage = true, showOnlySummary = false) {
     this.showPassedTests = showPassedTests
     this.showCodeCoverage = showCodeCoverage
+    this.showOnlySummary = showOnlySummary
   }
 }

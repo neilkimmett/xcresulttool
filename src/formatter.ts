@@ -452,13 +452,11 @@ export class Formatter {
           }
         }
       }
-      if (!options.showOnlySummary) {
-        if (summaryFailures.length) {
-          chapterSummary.content.push(summaryFailures.join('\n'))
-          chapterSummary.content.push('')
-        } else {
-          chapterSummary.content.push('All tests passed :tada:\n')
-        }
+      if (summaryFailures.length) {
+        chapterSummary.content.push(summaryFailures.join('\n'))
+        chapterSummary.content.push('')
+      } else if (!options.showOnlySummary) {
+        chapterSummary.content.push('All tests passed :tada:\n')
       }
 
       if (testReport.codeCoverage && options.showCodeCoverage) {
